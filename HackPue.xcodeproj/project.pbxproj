@@ -7,6 +7,18 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0A4B96832E526F3200546B20 /* RegisterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A4B96822E526F3200546B20 /* RegisterView.swift */; };
+		0A4B96852E526F5A00546B20 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A4B96842E526F5A00546B20 /* HomeView.swift */; };
+		0A4B96872E526F8D00546B20 /* DataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A4B96862E526F8D00546B20 /* DataManager.swift */; };
+		0A4B96892E526FA500546B20 /* Member.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A4B96882E526FA500546B20 /* Member.swift */; };
+		0A4B968B2E526FD100546B20 /* NewMemberView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A4B968A2E526FD100546B20 /* NewMemberView.swift */; };
+		0A4B968D2E526FEF00546B20 /* FamilyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A4B968C2E526FEF00546B20 /* FamilyView.swift */; };
+		0A4B968F2E52701300546B20 /* PastAlertsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A4B968E2E52701300546B20 /* PastAlertsView.swift */; };
+		0A4B96912E52703300546B20 /* ChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A4B96902E52703300546B20 /* ChartView.swift */; };
+		0A4B96932E52705400546B20 /* FeatureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A4B96922E52705400546B20 /* FeatureView.swift */; };
+		0A4B96952E52706900546B20 /* GeminiService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A4B96942E52706900546B20 /* GeminiService.swift */; };
+		0A4B96972E52708100546B20 /* ParentalGuideView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A4B96962E52708100546B20 /* ParentalGuideView.swift */; };
+		0A4B96992E52709600546B20 /* Config.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A4B96982E52709600546B20 /* Config.swift */; };
 		0AAD8F022E526EE1001AF958 /* HackPueApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AAD8F012E526EE1001AF958 /* HackPueApp.swift */; };
 		0AAD8F042E526EE1001AF958 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AAD8F032E526EE1001AF958 /* ContentView.swift */; };
 		0AAD8F062E526EE2001AF958 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0AAD8F052E526EE2001AF958 /* Assets.xcassets */; };
@@ -34,6 +46,18 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		0A4B96822E526F3200546B20 /* RegisterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegisterView.swift; sourceTree = "<group>"; };
+		0A4B96842E526F5A00546B20 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
+		0A4B96862E526F8D00546B20 /* DataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataManager.swift; sourceTree = "<group>"; };
+		0A4B96882E526FA500546B20 /* Member.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Member.swift; sourceTree = "<group>"; };
+		0A4B968A2E526FD100546B20 /* NewMemberView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewMemberView.swift; sourceTree = "<group>"; };
+		0A4B968C2E526FEF00546B20 /* FamilyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FamilyView.swift; sourceTree = "<group>"; };
+		0A4B968E2E52701300546B20 /* PastAlertsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PastAlertsView.swift; sourceTree = "<group>"; };
+		0A4B96902E52703300546B20 /* ChartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChartView.swift; sourceTree = "<group>"; };
+		0A4B96922E52705400546B20 /* FeatureView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeatureView.swift; sourceTree = "<group>"; };
+		0A4B96942E52706900546B20 /* GeminiService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeminiService.swift; sourceTree = "<group>"; };
+		0A4B96962E52708100546B20 /* ParentalGuideView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParentalGuideView.swift; sourceTree = "<group>"; };
+		0A4B96982E52709600546B20 /* Config.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Config.swift; sourceTree = "<group>"; };
 		0AAD8EFE2E526EE1001AF958 /* HackPue.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HackPue.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		0AAD8F012E526EE1001AF958 /* HackPueApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HackPueApp.swift; sourceTree = "<group>"; };
 		0AAD8F032E526EE1001AF958 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -98,6 +122,18 @@
 				0AAD8F032E526EE1001AF958 /* ContentView.swift */,
 				0AAD8F052E526EE2001AF958 /* Assets.xcassets */,
 				0AAD8F072E526EE2001AF958 /* Preview Content */,
+				0A4B96822E526F3200546B20 /* RegisterView.swift */,
+				0A4B96842E526F5A00546B20 /* HomeView.swift */,
+				0A4B96862E526F8D00546B20 /* DataManager.swift */,
+				0A4B96882E526FA500546B20 /* Member.swift */,
+				0A4B968A2E526FD100546B20 /* NewMemberView.swift */,
+				0A4B968C2E526FEF00546B20 /* FamilyView.swift */,
+				0A4B968E2E52701300546B20 /* PastAlertsView.swift */,
+				0A4B96902E52703300546B20 /* ChartView.swift */,
+				0A4B96922E52705400546B20 /* FeatureView.swift */,
+				0A4B96942E52706900546B20 /* GeminiService.swift */,
+				0A4B96962E52708100546B20 /* ParentalGuideView.swift */,
+				0A4B96982E52709600546B20 /* Config.swift */,
 			);
 			path = HackPue;
 			sourceTree = "<group>";
@@ -257,7 +293,19 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0A4B968D2E526FEF00546B20 /* FamilyView.swift in Sources */,
+				0A4B968B2E526FD100546B20 /* NewMemberView.swift in Sources */,
+				0A4B96832E526F3200546B20 /* RegisterView.swift in Sources */,
+				0A4B96992E52709600546B20 /* Config.swift in Sources */,
+				0A4B96912E52703300546B20 /* ChartView.swift in Sources */,
+				0A4B96952E52706900546B20 /* GeminiService.swift in Sources */,
+				0A4B96892E526FA500546B20 /* Member.swift in Sources */,
+				0A4B968F2E52701300546B20 /* PastAlertsView.swift in Sources */,
+				0A4B96872E526F8D00546B20 /* DataManager.swift in Sources */,
+				0A4B96932E52705400546B20 /* FeatureView.swift in Sources */,
+				0A4B96852E526F5A00546B20 /* HomeView.swift in Sources */,
 				0AAD8F042E526EE1001AF958 /* ContentView.swift in Sources */,
+				0A4B96972E52708100546B20 /* ParentalGuideView.swift in Sources */,
 				0AAD8F022E526EE1001AF958 /* HackPueApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
