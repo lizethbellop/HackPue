@@ -9,7 +9,7 @@ import Foundation
 
 struct Config {
     // Tu API key de Google AI Studio
-    static let geminiAPIKey = "AIzaSyB6M9GFqmdgR20vaiWFBvUJ1n8-Rd1MML8"
+    static let geminiAPIKey = "YOUR_API_KEY"
     
     // Método para verificar si la API Key está configurada
     static var isAPIKeyConfigured: Bool {
