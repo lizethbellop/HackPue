@@ -13,7 +13,7 @@ struct HomeView: View {
     @ObservedObject var dataManager: DataManager
     @State private var selectedMember: Member?
     @State private var showingAddMember = false
-    @State private var selectedTab: Int = 0 // 0 = Home, 1 = Parental Guide, 2 = Past Alerts
+    @State private var selectedTab: Int = 0 // 0 = Home, 1 = Parental Guide, 2 = Past Alerts, 3 = Activities, 4 = Articles
     @Environment(\.dismiss) private var dismiss
     
     var body: some View {
@@ -89,21 +89,44 @@ struct HomeView: View {
                         }
                     }
                     
-                    // Botones de funciones
-                    HStack(spacing: 20) {
-                        Button {
-                            selectedTab = 1
-                        } label: {
-                            FeatureView(icon: "lightbulb.fill", title: "Guía parental", color: .yellow)
-                        }
+                    // Sección de recursos
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("Recursos educativos")
+                            .font(.headline)
+                            .padding(.horizontal)
                         
-                        Button {
-                            selectedTab = 2
-                        } label: {
-                            FeatureView(icon: "bell.badge", title: "Alertas anteriores", color: .red)
+                        // Primera fila de botones
+                        HStack(spacing: 12) {
+                            Button {
+                                selectedTab = 1
+                            } label: {
+                                FeatureView(icon: "lightbulb.fill", title: "Guía parental", color: .yellow)
+                            }
+                            
+                            Button {
+                                selectedTab = 3
+                            } label: {
+                                FeatureView(icon: "figure.2.and.child.holdinghands", title: "Actividades", color: .green)
+                            }
                         }
+                        .padding(.horizontal)
+                        
+                        // Segunda fila de botones
+                        HStack(spacing: 12) {
+                            Button {
+                                selectedTab = 4
+                            } label: {
+                                FeatureView(icon: "newspaper.fill", title: "Saber más", color: .blue)
+                            }
+                            
+                            Button {
+                                selectedTab = 2
+                            } label: {
+                                FeatureView(icon: "bell.badge", title: "Alertas", color: .red)
+                            }
+                        }
+                        .padding(.horizontal)
                     }
-                    .padding()
                     
                     Spacer()
                 }
@@ -171,6 +194,22 @@ struct HomeView: View {
                     Text("Alertas")
                 }
                 .tag(2)
+            
+            // Pestaña Actividades
+            ActivitiesView()
+                .tabItem {
+                    Image(systemName: "figure.2.and.child.holdinghands")
+                    Text("Actividades")
+                }
+                .tag(3)
+            
+            // Pestaña Artículos
+            ArticlesView()
+                .tabItem {
+                    Image(systemName: "newspaper.fill")
+                    Text("Saber más")
+                }
+                .tag(4)
         }
         .navigationBarBackButtonHidden()
     }

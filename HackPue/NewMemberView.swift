@@ -24,6 +24,10 @@ struct NewMemberView: View {
     @State private var showQR = false
     @State private var generatedMember: Member?
     
+    @State private var hasTDAH = false
+    @State private var focusModeEnabled = false
+    @State private var focusModeSchedule: [FocusSchedule] = []
+    
     var body: some View {
         NavigationView {
             Form {
@@ -31,6 +35,37 @@ struct NewMemberView: View {
                     TextField("Nombre", text: $firstName)
                     TextField("Apellido", text: $lastName)
                     DatePicker("Fecha de nacimiento", selection: $birthdate, displayedComponents: .date)
+                }
+                
+                Section(header: Text("Información médica")) {
+                    Toggle("¿Tiene TDAH?", isOn: $hasTDAH)
+                    
+                    if hasTDAH {
+                        VStack(alignment: .leading, spacing: 12) {
+                            HStack {
+                                Image(systemName: "lightbulb.fill")
+                                    .foregroundColor(.orange)
+                                Text("Recomendación")
+                                    .fontWeight(.semibold)
+                            }
+                            
+                            Text("Para niños con TDAH, recomendamos activar el Modo Enfoque que incluye:")
+                                .font(.caption)
+                            
+                            VStack(alignment: .leading, spacing: 4) {
+                                Label("Alertas de cambio frecuente de apps", systemImage: "arrow.triangle.swap")
+                                Label("Recordatorios de tareas programadas", systemImage: "clock.fill")
+                                Label("Límites de tiempo personalizados", systemImage: "hourglass")
+                                Label("Bloqueo de distracciones", systemImage: "hand.raised.fill")
+                            }
+                            .font(.caption2)
+                            .foregroundColor(.secondary)
+                            
+                            Toggle("Activar Modo Enfoque", isOn: $focusModeEnabled)
+                                .tint(.orange)
+                        }
+                        .padding(.vertical, 8)
+                    }
                 }
                 
                 Section(header: Text("Configuraciones especiales")) {
@@ -44,6 +79,18 @@ struct NewMemberView: View {
                     if shouldBeStudying {
                         DatePicker("Hora de inicio", selection: $studyStart, displayedComponents: .hourAndMinute)
                         DatePicker("Hora de término", selection: $studyEnd, displayedComponents: .hourAndMinute)
+                    }
+                }
+                
+                if focusModeEnabled {
+                    Section(header: Text("Horarios de Modo Enfoque")) {
+                        NavigationLink("Configurar horarios") {
+                            FocusModeScheduleView(schedules: $focusModeSchedule)
+                        }
+                        
+                        Text("El Modo Enfoque ayuda a reducir distracciones durante momentos clave del día")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
                     }
                 }
             }
@@ -62,7 +109,6 @@ struct NewMemberView: View {
         .sheet(isPresented: $showQR) {
             if let member = generatedMember {
                 QRCodeView(member: member) {
-                    // Cuando se cierre el QR, también cerrar NewMemberView
                     dismiss()
                 }
             }
@@ -70,6 +116,7 @@ struct NewMemberView: View {
     }
     
     func saveUser() {
+        // ✅ Pasar TODOS los parámetros incluyendo hasTDAH
         let member = Member(
             firstName: firstName,
             lastName: lastName,
@@ -79,13 +126,14 @@ struct NewMemberView: View {
             sleepEnd: shouldBeSleeping ? sleepEnd : nil,
             shouldBeStudying: shouldBeStudying,
             studyStart: shouldBeStudying ? studyStart : nil,
-            studyEnd: shouldBeStudying ? studyEnd : nil
+            studyEnd: shouldBeStudying ? studyEnd : nil,
+            hasTDAH: hasTDAH,
+            focusModeEnabled: focusModeEnabled,
+            focusModeSchedule: focusModeSchedule
         )
         
-        // Guardar el miembro primero
         onSave(member)
         
-        // Mostrar el código QR después de un pequeño delay para asegurar que el miembro se ha guardado
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
             generatedMember = member
             showQR = true
@@ -93,12 +141,11 @@ struct NewMemberView: View {
     }
 }
 
+// QRCodeView
 struct QRCodeView: View {
     let member: Member
     @Environment(\.dismiss) var dismiss
     @State private var qrCodeImage: UIImage?
-    
-    // Closure para manejar el cierre completo
     var onComplete: (() -> Void)?
     
     var body: some View {
@@ -131,9 +178,7 @@ struct QRCodeView: View {
                         RoundedRectangle(cornerRadius: 12)
                             .fill(Color.gray.opacity(0.3))
                             .frame(width: 250, height: 250)
-                            .overlay(
-                                ProgressView()
-                            )
+                            .overlay(ProgressView())
                     }
                     
                     VStack(spacing: 8) {
@@ -181,8 +226,8 @@ struct QRCodeView: View {
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Cerrar") {
-                        dismiss() // Cierra la vista del QR
-                        onComplete?() // Ejecuta el callback si existe
+                        dismiss()
+                        onComplete?()
                     }
                 }
             }
@@ -193,7 +238,6 @@ struct QRCodeView: View {
     }
     
     private func generateQRCode() {
-        // Crear la información del miembro en formato JSON para el QR
         let memberData = QRMemberData(
             id: member.id.uuidString,
             name: member.fullName,
@@ -210,11 +254,9 @@ struct QRCodeView: View {
     private func createQRCode(from string: String) -> UIImage {
         let context = CIContext()
         let filter = CIFilter.qrCodeGenerator()
-        
         filter.message = Data(string.utf8)
         
         if let outputImage = filter.outputImage {
-            // Escalar la imagen para mejor calidad
             let transform = CGAffineTransform(scaleX: 10, y: 10)
             let scaledImage = outputImage.transformed(by: transform)
             
@@ -227,7 +269,6 @@ struct QRCodeView: View {
     }
 }
 
-// Estructura para los datos del QR Code
 struct QRMemberData: Codable {
     let id: String
     let name: String

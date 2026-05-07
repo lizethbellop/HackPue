@@ -11,7 +11,7 @@ struct ParentalGuideView: View {
     @State private var guideText: String = ""
     @State private var isLoading: Bool = false
     @State private var errorMessage: String?
-    private let geminiService = GeminiService()
+    @StateObject private var geminiService = GeminiService()
     
     var body: some View {
         NavigationView {
@@ -119,11 +119,6 @@ struct ParentalGuideView: View {
                 }
             }
             .navigationBarHidden(true)
-        }
-        .onAppear {
-            if guideText.isEmpty && !isLoading {
-                loadParentalGuide()
-            }
         }
     }
     

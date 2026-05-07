@@ -10,7 +10,7 @@ import SwiftUI
 struct PastAlertsView: View {
     @ObservedObject var dataManager: DataManager
     @State private var selectedMember: Member?
-    @State private var geminiService = GeminiService()
+    @StateObject private var geminiService = GeminiService()
     
     // Estados para análisis IA
     @State private var alertAnalyses: [String: String] = [:]

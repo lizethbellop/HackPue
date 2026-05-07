@@ -7,50 +7,90 @@
 
 import Foundation
 
-class GeminiService {
-    private let apiKey = Config.geminiAPIKey
-    private let baseURL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent"
+// MARK: - Gemini Service
+class GeminiService: ObservableObject {
+    // Pon tu API key aquí directamente
+    private let apiKey = Secrets.geminiAPIKey
+    
+    // Modelos disponibles (cambia si necesitas):
+    // - gemini-2.0-flash-exp (más reciente)
+    // - gemini-1.5-pro-latest (más estable)
+    // - gemini-1.5-flash-8b (más rápido)
+    private let model = "gemini-2.0-flash"
+    
+    private var baseURL: String {
+        "https://generativelanguage.googleapis.com/v1beta/models/\(model):generateContent"
+    }
+    
+    // Control de rate limiting
+    private var lastRequestTime: Date?
+    private let minRequestInterval: TimeInterval = 4.0 // 2 segundos entre requests
     
     func generateContent(prompt: String) async throws -> String {
-        guard Config.isAPIKeyConfigured else {
+        // Rate limiting: esperar si la última petición fue muy reciente
+        if let lastTime = lastRequestTime {
+            let timeSinceLastRequest = Date().timeIntervalSince(lastTime)
+            if timeSinceLastRequest < minRequestInterval {
+                let waitTime = minRequestInterval - timeSinceLastRequest
+                print("⏳ Esperando \(String(format: "%.1f", waitTime))s para evitar rate limit...")
+                try await Task.sleep(nanoseconds: UInt64(waitTime * 1_000_000_000))
+            }
+        }
+        lastRequestTime = Date()
+        
+        // Validar API Key
+        guard !apiKey.isEmpty, apiKey.hasPrefix("AIza") else {
             throw GeminiError.invalidAPIKey
         }
         
+        // Crear URL
         guard let url = URL(string: "\(baseURL)?key=\(apiKey)") else {
             throw GeminiError.invalidURL
         }
         
-        let requestBody = GeminiRequest(
-            contents: [
-                GeminiContent(
-                    parts: [GeminiPart(text: prompt)],
-                    role: nil
-                )
+        // Crear request body
+        let requestBody: [String: Any] = [
+            "contents": [
+                [
+                    "parts": [
+                        ["text": prompt]
+                    ]
+                ]
             ]
-        )
+        ]
         
+        // Crear request
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
-        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.timeoutInterval = 60.0
         
         do {
-            request.httpBody = try JSONEncoder().encode(requestBody)
+            request.httpBody = try JSONSerialization.data(withJSONObject: requestBody)
         } catch {
+            print("❌ Error creando request: \(error)")
             throw GeminiError.encodingError
         }
         
+        // Hacer request
         do {
+            print("🌐 Enviando a Gemini...")
             let (data, response) = try await URLSession.shared.data(for: request)
             
             guard let httpResponse = response as? HTTPURLResponse else {
                 throw GeminiError.invalidResponse
             }
             
+            print("📊 Status: \(httpResponse.statusCode)")
+            
+            // Manejar errores HTTP
             switch httpResponse.statusCode {
             case 200:
                 break
             case 400:
+                if let errorStr = String(data: data, encoding: .utf8) {
+                    print("❌ Error 400: \(errorStr)")
+                }
                 throw GeminiError.badRequest
             case 401:
                 throw GeminiError.unauthorized
@@ -64,122 +104,86 @@ class GeminiService {
                 throw GeminiError.httpError(httpResponse.statusCode)
             }
             
-            let geminiResponse = try JSONDecoder().decode(GeminiResponse.self, from: data)
-            
-            guard let firstCandidate = geminiResponse.candidates.first,
-                  let firstPart = firstCandidate.content.parts.first else {
+            // Parse response
+            guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
+                  let candidates = json["candidates"] as? [[String: Any]],
+                  let firstCandidate = candidates.first,
+                  let content = firstCandidate["content"] as? [String: Any],
+                  let parts = content["parts"] as? [[String: Any]],
+                  let firstPart = parts.first,
+                  let text = firstPart["text"] as? String else {
+                
+                if let jsonStr = String(data: data, encoding: .utf8) {
+                    print("📥 Response: \(jsonStr)")
+                }
                 throw GeminiError.noContent
             }
             
-            return firstPart.text
+            print("✅ Respuesta recibida!")
+            return text
             
         } catch let error as GeminiError {
             throw error
-        } catch let decodingError as DecodingError {
-            print("Error de decodificación: \(decodingError)")
-            throw GeminiError.decodingError
         } catch let urlError as URLError {
+            print("❌ URL Error: \(urlError.localizedDescription)")
             switch urlError.code {
             case .notConnectedToInternet:
                 throw GeminiError.networkError("Sin conexión a internet")
             case .timedOut:
-                throw GeminiError.networkError("Timeout - La solicitud tardó demasiado")
-            case .cannotFindHost:
-                throw GeminiError.networkError("No se puede encontrar el servidor")
-            case .cannotConnectToHost:
+                throw GeminiError.networkError("La solicitud tardó demasiado")
+            case .cannotFindHost, .cannotConnectToHost:
                 throw GeminiError.networkError("No se puede conectar al servidor")
             default:
                 throw GeminiError.networkError(urlError.localizedDescription)
             }
         } catch {
+            print("❌ Error general: \(error)")
             throw GeminiError.networkError(error.localizedDescription)
         }
     }
 }
 
-// MARK: - Data Models
-struct GeminiRequest: Codable {
-    let contents: [GeminiContent]
-}
-
-struct GeminiContent: Codable {
-    let parts: [GeminiPart]
-    let role: String?
-}
-
-struct GeminiPart: Codable {
-    let text: String
-}
-
-struct GeminiResponse: Codable {
-    let candidates: [GeminiCandidate]
-    let usageMetadata: GeminiUsageMetadata?
-    let modelVersion: String?
-    let responseId: String?
-}
-
-struct GeminiCandidate: Codable {
-    let content: GeminiContent
-    let finishReason: String?
-    let avgLogprobs: Double?
-    let safetyRatings: [GeminiSafetyRating]?
-}
-
-struct GeminiUsageMetadata: Codable {
-    let promptTokenCount: Int?
-    let candidatesTokenCount: Int?
-    let totalTokenCount: Int?
-}
-
-struct GeminiSafetyRating: Codable {
-    let category: String
-    let probability: String
-}
-
-// MARK: - Error Types
+// MARK: - Errors
 enum GeminiError: Error, LocalizedError {
-    case invalidURL
     case invalidAPIKey
+    case invalidURL
     case encodingError
-    case decodingError
-    case invalidResponse
-    case httpError(Int)
+    case noContent
     case badRequest
     case unauthorized
     case forbidden
     case rateLimitExceeded
     case serverError(Int)
-    case noContent
+    case httpError(Int)
     case networkError(String)
+    case invalidResponse
     
     var errorDescription: String? {
         switch self {
+        case .invalidAPIKey:
+            return "API Key inválida"
         case .invalidURL:
             return "URL inválida"
-        case .invalidAPIKey:
-            return "API Key no configurada o inválida"
         case .encodingError:
-            return "Error al codificar la solicitud"
-        case .decodingError:
-            return "Error al decodificar la respuesta"
+            return "Error creando la solicitud"
+        case .noContent:
+            return "No se recibió respuesta válida"
+        case .badRequest:
+            return "Solicitud incorrecta (400)"
+        case .unauthorized:
+            return "API Key no autorizada (401)"
+        case .forbidden:
+            return "Acceso prohibido (403)"
+        case .rateLimitExceeded:
+            return "Límite de solicitudes excedido (429)"
+        case .serverError(let code):
+            return "Error del servidor (\(code))"
+        case .httpError(let code):
+            return "Error HTTP (\(code))"
+        case .networkError(let message):
+            return message
         case .invalidResponse:
             return "Respuesta inválida del servidor"
-        case .httpError(let code):
-            return "Error HTTP: \(code)"
-        case .badRequest:
-            return "Solicitud incorrecta (400). Verifica el formato del request."
-        case .unauthorized:
-            return "No autorizado (401). Verifica tu API Key."
-        case .forbidden:
-            return "Prohibido (403). API Key inválida o sin permisos."
-        case .rateLimitExceeded:
-            return "Límite de solicitudes excedido (429). Intenta más tarde."
-        case .serverError(let code):
-            return "Error del servidor (\(code)). Intenta más tarde."
-        case .noContent:
-            return "No se recibió contenido de la API"
-        case .networkError(let message):
-            return "Error de red: \(message)"
         }
     }
 }
